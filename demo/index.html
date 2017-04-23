@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>carrousel-list demo</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+
+    <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+    <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+    <link rel="import" href="../carrousel-list.html">
+    <link rel="import" href="../carrousel-list-item.html">
+
+    <style is="custom-style" include="demo-pages-shared-styles">
+      .big {
+        font-size: 1.6em;
+        background-color: lightcyan;
+        color: violet;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="vertical-section-container centered">
+      <h3>Basic carrousel-list demo</h3>
+      <demo-snippet>
+        <template>
+          <carrousel-list show="4" seconds="10">
+            <carrousel-list-item>Pure text</carrousel-list-item>
+            <carrousel-list-item><div class="big">More text using own containers</div></carrousel-list-item>
+            <carrousel-list-item><p>More content as a &lt;P&gt;</p></carrousel-list-item>
+            <carrousel-list-item><img src="bender.png" alt="bender" width="64" height="64"> More content - item 4</carrousel-list-item>
+            <carrousel-list-item>More content - item 5</carrousel-list-item>
+            <carrousel-list-item>More content - item 6</carrousel-list-item>
+          </carrousel-list>
+        </template>
+      </demo-snippet>
+    </div>
+  </body>
+</html>

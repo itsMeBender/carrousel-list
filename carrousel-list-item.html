@@ -1,0 +1,50 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`carrousel-list`
+An animated roulating list of items
+
+@demo demo/index.html 
+-->
+
+<dom-module id="carrousel-list-item">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: absolute;
+      }
+    </style>
+    <content></content>
+  </template>
+
+  <script>
+    Polymer({
+
+      is: 'carrousel-list-item',
+
+      properties: {
+        prop1: {
+          type: String,
+          value: 'carrousel-list-item',
+        },
+      },
+
+      attached: function () {
+        // console.log("I'am attached, fire event to parent.");
+        // var event = new Event('carrousel-list-item');
+        // this.dispatchEvent(event);
+        this.fire('carrousel-item-add', {carrousel_element: this, h:this.offsetHeight});
+        // console.log(this.getBoundingClientRect());
+      },
+
+      detached: function () {
+        // console.log("I'am detached, fire event to parent.");
+        // var event = new Event('carrousel-list-item');
+        // this.dispatchEvent(event);
+        this.fire('carrousel-item-removed', {carrousel_element: this});
+      },
+
+    });
+  </script>
+</dom-module>

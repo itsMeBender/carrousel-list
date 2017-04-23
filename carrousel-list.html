@@ -1,0 +1,294 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+`carrousel-list`
+An animated rotating list of items
+
+**Note**: if you're using IMAGES inside this element, provide them with a WIDTH and HEIGHT attribute.
+
+@demo demo/index.html 
+-->
+
+<dom-module id="carrousel-list">
+  <template>
+    <style>
+      :host {
+        display: block;
+        position: relative;
+        height: 120px;  /* TODO: Make this an attribute or ... */
+        overflow-y: hidden;
+        border: solid green thin;
+      }
+    </style>
+    <content></content>
+  </template>
+
+  <script>
+    Polymer({
+
+      // Internal API of this element
+      _carrousel: (function () {
+        var api = {
+          idFirst: 0,                 // First element of the displayed list
+          idLast: 0,                  // Last element of the displayed list
+          list: [],                   // An Array of Objects, keeping management information about <carrousel-list> elements
+          carrouselElement: null,     // Properties of the <carrousel-list> element
+          rotationSeq: [],            // The list items visible on screen.
+          seq: -1,                    // Unused sequence number
+          rotation: null,             // Animation interval, where items are shuffled
+        };
+
+        var anim = {
+          seq: 0,
+          sprites: [],
+          animationFrame: null,
+        };
+
+        /**
+         * Add a new Sprite to the animation list.
+         * @param {element} element to be animated
+         * @param {Number} yStart position on Y-ax to be animated from
+         * @param {Number} yStop position on Y-ax to be animated to, animation ends
+         * @param {Number} step steps to be taken between yStart and yStop
+         * @return {Sprite} the created Sprite, containing Sprite.id an unique number.
+         */
+        anim.addSprite = function (element, yStart, yStop, step) {
+          var id = this.sprites.push(this.Sprite(element, yStart, yStop, step));
+          return this.sprites[id - 1];
+        };
+
+        /**
+         * Method for deleting Sprite identied bu Sprite.id from the animation list
+         * @param {Number} id of the Sprite Object
+         */
+        anim.deleteSprite = function (id) {
+          var i = 0;
+          var maxSprites = this.sprites.length;
+
+          for (; i < maxSprites; i += 1) {
+            if (this.sprites[i].id === id) {
+              this.sprites.splice(i, 1);
+              i = maxSprites;   // Break loop
+            }
+          }
+        };
+
+        /**
+         * Sprite constructor, which is an element to handle SPRITE animations.
+         */
+        anim.Sprite = function (element, yStart, yStop, milli) {
+          var sprite = {
+            id: 0,
+            element: element,
+            start: null,          // Animation timer
+            milli: milli || 20,   // MilliSeconds to animate between yStart and yStop
+            yStart: yStart,
+            yStop: yStop,
+            yDiff: yStop - yStart,
+          };
+
+          this.seq += 1;          // Create unique sequence number
+          sprite.id = this.seq;   // Identify new Sprite by this number
+
+          return sprite;
+        };
+
+        /**
+         * For each ANIMATION FRAME the new location off all Sprites are calculated on staging.
+         * https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
+         * @param {Number} timestamp of the animation frame
+         */
+        anim.staging = function (timestamp) {
+          var i = 0;
+          var maxSprites = anim.sprites.length;
+          var progress;       // Animation progress based on passed time.
+          var sprite;         // Sprite animation Object
+
+          // Check for Sprites to be animated
+          if (maxSprites > 0) {
+            // Calculate new position
+            for (; i < maxSprites; i += 1) {
+              // Short cut to the animated Sprite Object.
+              sprite = anim.sprites[i];
+              // Reset Sprite animation, or continue with existing one.
+              sprite.start = sprite.start || timestamp;
+              progress = timestamp - sprite.start;
+
+              // console.log(Math.round(progress / anim.sprites[i].milli * 100), "%");
+
+              if (progress >= sprite.milli) {
+                // Animation finished
+                sprite.element.style.top = sprite.yStop + 'px';
+                anim.deleteSprite(sprite.id);
+                maxSprites = anim.sprites.length;
+                i -= 1; // Check same index again, because item removed from Array.
+              } else {
+                sprite.element.style.top = sprite.yStart + Math.round(progress / sprite.milli * sprite.yDiff) + 'px';
+              }
+            }
+          }
+
+          // Repeat animation
+          this.animationFrame = window.requestAnimationFrame(anim.staging);
+        };
+
+        // Activate ANIMATION with an empty animation list.
+        anim.animationFrame = window.requestAnimationFrame(anim.staging);
+
+        /**
+         * Find an <carrousel-list-item> based on 'seq' (sequence) number.
+         * @param {Number} seq number of the element
+         * @return {element} or -1 when not found.
+         */
+        function getCarrouselItemBySeq (seq) {
+          var max = api.list.length;
+          var i = 0;
+          for (; i < max; i += 1) {
+            if (api.list[i].seq === seq) {
+              return api.list[i];
+            }
+          }
+          return -1;    // Meaning NOT FOUND
+        }
+
+        /**
+         * Rotate the list of <carrousel-list-item> elements, in the sequence specified by api.rotationSeq[].
+         * 1.) All current items are animated scrolling down.
+         * 2.) Last current item is made hidden - fading out.
+         * 3.) A new item fades in on position 0.
+         *
+         * https://www.w3.org/TR/2011/WD-page-visibility-20110602/
+         */
+        function _rotateCarrousel () {
+          var item;     // a Carrousel list item
+          var i = 1;    // Index FOR
+          // Render MAXimum items, depending on availabillity (length) and property 'SHOW'.
+          var max = api.list.length;
+          var topStart = 0;
+          var topEnd = 0;
+
+          // Draw FIRST element at top:0px, fade in.
+          item = getCarrouselItemBySeq(api.rotationSeq[0]);
+          item.element.setAttribute('style', 'top:' + topStart + 'px; display: block;');
+          topEnd += item.height;    // Starting point of the next carrousel element.
+
+          // Position a number of 'api.carrouselElement.show' items, in the correct vertical location.
+
+          for (; i < max; i += 1) {
+
+            // anim.addSprite(api.list[api.list.length - 1].element, 0, 100, 500);
+            console.log(i, topStart, topEnd);
+            item = getCarrouselItemBySeq(api.rotationSeq[i]);
+
+            anim.addSprite(item.element, topStart, topEnd, 1000);
+            // item.element.setAttribute('style', 'top:' + top + 'px; display: block;');
+            topStart = topEnd;
+            topEnd += item.height;
+
+            if (i < api.carrouselElement.show) {
+              item.element.setAttribute('style', 'display: block;');
+            } else {
+              item.element.setAttribute('style', 'display: none;');
+            }
+
+          }
+        };
+
+
+        /**
+         * Add a new child <carrousel-list-item> to the animation list
+         * @param {Element} element being the special <carrousel-list-item> child element
+         * @param {Number} height of the special <carrousel-list-item> child element
+         */
+        api.add = function (element, height) {
+
+          this.seq += 1;            // Create a new unique, unused sequence number.
+
+          // Register this element to be part of the animated, roulating list.
+          this.list.push({
+            element: element,       // <carrousel-list-item>
+            height: height,         // Height of the element
+            seq: this.seq,          // Unique SEQUENTIAL number
+          });
+
+          this.rotationSeq.push(this.seq);
+
+          // Hide elements when the 'carrousel-list.show' count has been reached
+          // These items will be animated
+          if (this.list.length > this.carrouselElement.show) {
+            element.style.display = "none";
+
+            // Start animation ROTATION sequence. 
+            // Because more carrousel items are avaiable then maximal allowed (attribute show)
+            if (!this.rotation) {
+              // Rotate the list every INTERVAL, LAST becomes FIRST in the 'rotationSeq'-Array
+              this.rotation = setInterval(function () {
+                // Copy last item in Array as first item in Array
+                api.rotationSeq.unshift(api.rotationSeq[api.rotationSeq.length - 1]);
+                // Remove the last item in Array
+                api.rotationSeq.pop();
+                // New rotation sequence order created, activate rotation ANIMATION
+                _rotateCarrousel();
+              }, this.carrouselElement.seconds * 1000);
+
+            }
+          } else {
+            this.idLast = this.list.length - 1;   // Unique SEQUENTIAL number TODO: deletions and adding element give problems here.
+          }
+
+          _rotateCarrousel();
+        };
+
+
+        /**
+         * Register THIS <carrousel-list> element to this _carrousel API.
+         * In this way we're hidding internal functions and data as outside methods.
+         * @param {Element} carrousel THIS <carrousel-list> element
+         */
+        api.registerMe = function (carrousel) {
+          this.carrouselElement = carrousel;
+        }
+
+        /**
+         * TODO: remove an list element.
+         */
+        api.remove = function (element) {
+          console.log("TODO: Removing the child element from the animation sequence.");
+          console.log("TODO: Stop timer when not enough items are available.");
+        };
+
+        return api;
+      })(),
+
+      is: 'carrousel-list',
+
+      properties: {
+        // Show this number of carrousel items.
+        show: {
+          type: Number,
+          value: 3,
+        },
+
+        // Number of seconds to refresh, rotate the list.
+        seconds: {
+          type: Number,
+          value: 60,
+        },
+      },
+
+      ready: function () {
+        var that = this;
+
+        // Register this 'carrousel-list' container to the API
+        this._carrousel.registerMe(this);
+
+        // Listen for the child 'carrousel-list-item' ATTACHED event.
+        this.addEventListener('carrousel-item-add', function (e) { 
+          // console.log("Registered an item", e.detail.h, e.detail.carrousel_element);
+          that._carrousel.add(e.detail.carrousel_element, e.detail.h);
+        }, false);
+      },
+
+    });
+  </script>
+</dom-module>
