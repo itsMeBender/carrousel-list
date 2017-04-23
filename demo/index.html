@@ -19,20 +19,33 @@
         background-color: lightcyan;
         color: violet;
       }
+      .bender div {
+        height: 64px;
+        border: thin solid chocolate;
+      }
+      .bender img {
+        float: left;
+      }
+      .bender span {
+        display: block;
+        margin-left: 74px;
+      }
     </style>
   </head>
   <body>
     <div class="vertical-section-container centered">
       <h3>Basic carrousel-list demo</h3>
+      <p>Show only four items of the available six.<br>
+      Refresh the list every 5 seconds.</p>
       <demo-snippet>
         <template>
-          <carrousel-list show="4" seconds="10">
-            <carrousel-list-item>Pure text</carrousel-list-item>
-            <carrousel-list-item><div class="big">More text using own containers</div></carrousel-list-item>
-            <carrousel-list-item><p>More content as a &lt;P&gt;</p></carrousel-list-item>
-            <carrousel-list-item><img src="bender.png" alt="bender" width="64" height="64"> More content - item 4</carrousel-list-item>
-            <carrousel-list-item>More content - item 5</carrousel-list-item>
-            <carrousel-list-item>More content - item 6</carrousel-list-item>
+          <carrousel-list show="4" seconds="5">
+            <carrousel-list-item>Pure text - item 1/6</carrousel-list-item>
+            <carrousel-list-item><div class="big">Use lay-out, style - item 2/6</div></carrousel-list-item>
+            <carrousel-list-item><p>More content as a &lt;P&gt; - item 3/6</p></carrousel-list-item>
+            <carrousel-list-item class="bender"><div><img src="bender.png" alt="bender" width="64" height="64"><span>Images (don't forget to use width, height')</span><span>- item 4/6</span></div></carrousel-list-item>
+            <carrousel-list-item>More content - item 5/6</carrousel-list-item>
+            <carrousel-list-item>Last content - item 6/6 - rotate again</carrousel-list-item>
           </carrousel-list>
         </template>
       </demo-snippet>
