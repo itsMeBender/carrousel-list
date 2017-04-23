@@ -1,8 +1,23 @@
 # \<carrousel-list\>
 
-An animated roulating list of items. It's part of my bigger project 'magic mirror'.
-Just to show some movement on screen to mimic some activity on screen.
+An animated vertical rotating list of items. It's part of my bigger project 'magic mirror'. 
+Just to show some movement to mimic some activity on screen.  
 
+If you have a list of 'm' items to show, but you have only room for 'n' items. 
+Then this element based on Polymer ^1.0.0 will handle that for you.  
+Carrousel items are nicely animated every 's' seconds, to show you a new item from the list.
+
+```
+<carrousel-list show="2" seconds="10">
+    <carrousel-list-item>Hi, this is the first item</carrousel-list-item>
+    <carrousel-list-item><p>This is a next one</p></carrousel-list-item>
+    <carrousel-list-item><img src="my-image.png" width="64" height="64"></carrousel-list-item>
+    <carrousel-list-item><div><span>Another</span> <span>one</span></div></carrousel-list-item>
+</carrousel-list>
+```
+
+
+# Build with Polymer 1
 
 ## Install the Polymer-CLI
 

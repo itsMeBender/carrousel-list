@@ -19,6 +19,33 @@ An animated rotating list of items
         overflow-y: hidden;
         border: solid green thin;
       }
+      /* 
+      @keyframes fadeIn {
+        0% {
+          display: block;
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      .fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          display: none;
+        }
+      }
+      .fade-out {
+        animation: fadeOut 0.5s ease-out;
+        color: greenyellow;
+      }
+      */
     </style>
     <content></content>
   </template>
@@ -28,6 +55,10 @@ An animated rotating list of items
 
       // Internal API of this element
       _carrousel: (function () {
+
+        /* CONSTRUCTOR: carrousel
+         * Internal carrousel API, not accessible from <carrousel-list>-element.
+         */
         var api = {
           idFirst: 0,                 // First element of the displayed list
           idLast: 0,                  // Last element of the displayed list
@@ -38,22 +69,64 @@ An animated rotating list of items
           rotation: null,             // Animation interval, where items are shuffled
         };
 
+        /* Sprite animation management
+         */
         var anim = {
-          seq: 0,
-          sprites: [],
-          animationFrame: null,
+          seq: 0,                     // Keep track of unique Sprite ID's
+          sprites: [],                // A list ANIMATED Sprites (which are just HTML-elements)
+          animationFrame: null,       // Keeping track of the current ANIMATION FRAME Object.
         };
 
         /**
-         * Add a new Sprite to the animation list.
+         * Sprite constructor, which is an element to handle SPRITE animations.
+         * @param {element} element to be animated
+         * @param {Number} yStart animation position
+         * @param {Number} yStop animation position
+         * @param {Number} milli total animation time in milliseconds, then firing CALLBACK to close
+         * @param {Number} action animation type: MOVE-Y | FADE-IN | FADE-OUT
+         * @param {Function} callback function when animation has ended.
+         * @return {Sprite} Object, just created.
+         */
+        anim.Sprite = function (element, yStart, yStop, milli, action, callback) {
+          var sprite = {
+            action: action,           // Movement, Opacity ...
+            callback: callback,       // Function called when animation was ended
+            element: element,         // The HTML-element animated
+            id: 0,                    // Unique ID of this Sprite
+            milli: milli || 500,      // MilliSeconds to animate between yStart and yStop
+            start: null,              // Animation timer
+            yStart: yStart,           // Start Y cooridinate
+            yStop: yStop,             // Stop Y cooridinate, when reached callback is called
+            yDiff: yStop - yStart,    // Y distance to animate
+          };
+
+          this.seq += 1;              // Create unique sequence number, starting at 1
+          sprite.id = this.seq;       // Identify new Sprite by this number
+
+          return sprite;
+        };
+
+        /**
+         * Register Sprite to the animation list, moving vertically from 'yStart' to 'yStop'.
          * @param {element} element to be animated
          * @param {Number} yStart position on Y-ax to be animated from
          * @param {Number} yStop position on Y-ax to be animated to, animation ends
-         * @param {Number} step steps to be taken between yStart and yStop
+         * @param {Number} milli total animation time in milliseconds, then firing CALLBACK to close
+         * @param {Function} callback function when animation has ended.
          * @return {Sprite} the created Sprite, containing Sprite.id an unique number.
          */
-        anim.addSprite = function (element, yStart, yStop, step) {
-          var id = this.sprites.push(this.Sprite(element, yStart, yStop, step));
+        anim.moveSpriteY = function (element, yStart, yStop, milli, callback) {
+          var id = this.sprites.push(this.Sprite(element, yStart, yStop, milli, "MOVE-Y", callback));
+          return this.sprites[id - 1];
+        };
+
+        anim.fadeInSprite = function (element, milli, callback) {
+          var id = this.sprites.push(this.Sprite(element, 0, 0, milli, "FADE-IN", callback));
+          return this.sprites[id - 1];
+        };
+
+        anim.fadeOutSprite = function (element, milli, callback) {
+          var id = this.sprites.push(this.Sprite(element, 0, 0, milli, "FADE-OUT", callback));
           return this.sprites[id - 1];
         };
 
@@ -74,57 +147,73 @@ An animated rotating list of items
         };
 
         /**
-         * Sprite constructor, which is an element to handle SPRITE animations.
-         */
-        anim.Sprite = function (element, yStart, yStop, milli) {
-          var sprite = {
-            id: 0,
-            element: element,
-            start: null,          // Animation timer
-            milli: milli || 20,   // MilliSeconds to animate between yStart and yStop
-            yStart: yStart,
-            yStop: yStop,
-            yDiff: yStop - yStart,
-          };
-
-          this.seq += 1;          // Create unique sequence number
-          sprite.id = this.seq;   // Identify new Sprite by this number
-
-          return sprite;
-        };
-
-        /**
-         * For each ANIMATION FRAME the new location off all Sprites are calculated on staging.
+         * For each ANIMATION FRAME the locations of all Sprites are re-calculated on staging.
          * https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
          * @param {Number} timestamp of the animation frame
          */
         anim.staging = function (timestamp) {
-          var i = 0;
+          var i = 0;          // Sprite animation index, 0 .. #
           var maxSprites = anim.sprites.length;
           var progress;       // Animation progress based on passed time.
           var sprite;         // Sprite animation Object
 
-          // Check for Sprites to be animated
+          // Check for Sprites to be animated. Otherwise skip to next 'animationFrame' EVENT.
           if (maxSprites > 0) {
-            // Calculate new position
+            // Prepare the new animation state
             for (; i < maxSprites; i += 1) {
               // Short cut to the animated Sprite Object.
               sprite = anim.sprites[i];
-              // Reset Sprite animation, or continue with existing one.
+              // Start Sprite animation, or continue with existing one.
               sprite.start = sprite.start || timestamp;
-              progress = timestamp - sprite.start;
+              progress = timestamp - sprite.start;  // How much progress time was passed
 
-              // console.log(Math.round(progress / anim.sprites[i].milli * 100), "%");
+              switch (sprite.action) {
 
-              if (progress >= sprite.milli) {
-                // Animation finished
-                sprite.element.style.top = sprite.yStop + 'px';
-                anim.deleteSprite(sprite.id);
-                maxSprites = anim.sprites.length;
-                i -= 1; // Check same index again, because item removed from Array.
-              } else {
-                sprite.element.style.top = sprite.yStart + Math.round(progress / sprite.milli * sprite.yDiff) + 'px';
+                // Move Sprite element vertically
+                case "MOVE-Y":
+                  if (progress >= sprite.milli) {
+                    // Animation finished
+                    sprite.element.style.top = sprite.yStop + 'px';
+                    anim.deleteSprite(sprite.id);
+                    maxSprites = anim.sprites.length;
+                    i -= 1; // Check same index again, because item removed from Array.
+
+                  } else {
+                    sprite.element.style.top = sprite.yStart + Math.round(progress / sprite.milli * sprite.yDiff) + 'px';
+                  }
+                  break;
+
+                case "FADE-IN":
+                  if (progress >= sprite.milli) {
+                    // Animation finished
+                    // sprite.element.style.opacity = "1";
+                    anim.deleteSprite(sprite.id);
+                    maxSprites = anim.sprites.length;
+                    i -= 1; // Check same index again, because item removed from Array.
+
+                    if (typeof sprite.callback === "function") {
+                      sprite.callback.call(sprite);
+                    }
+                  } else {
+                    // console.log((progress / sprite.milli).toString());
+                    sprite.element.style.opacity = (progress / sprite.milli).toString();
+                  }
+                  break;
+
+                case "FADE-OUT":
+                  if (progress >= sprite.milli) {
+                    // Animation finished
+                    sprite.element.style.opacity = "0";
+                    anim.deleteSprite(sprite.id);
+                    maxSprites = anim.sprites.length;
+                    i -= 1; // Check same index again, because item removed from Array.
+                  } else {
+                    // console.log(1 - (progress / sprite.milli).toString());
+                    sprite.element.style.opacity = (1 - progress / sprite.milli).toString();
+                  }
+                  break;
               }
+
             }
           }
 
@@ -165,32 +254,32 @@ An animated rotating list of items
           // Render MAXimum items, depending on availabillity (length) and property 'SHOW'.
           var max = api.list.length;
           var topStart = 0;
-          var topEnd = 0;
+          var spacer = 0;
 
           // Draw FIRST element at top:0px, fade in.
           item = getCarrouselItemBySeq(api.rotationSeq[0]);
-          item.element.setAttribute('style', 'top:' + topStart + 'px; display: block;');
-          topEnd += item.height;    // Starting point of the next carrousel element.
+          item.element.setAttribute('style', 'top:' + topStart + 'px;');
+          spacer = item.height;    // Starting point of the next carrousel element.
+
+          anim.fadeInSprite(item.element, 500, function () {
+            this.element.style.opacity = "1";
+          });
 
           // Position a number of 'api.carrouselElement.show' items, in the correct vertical location.
 
           for (; i < max; i += 1) {
-
-            // anim.addSprite(api.list[api.list.length - 1].element, 0, 100, 500);
-            console.log(i, topStart, topEnd);
             item = getCarrouselItemBySeq(api.rotationSeq[i]);
-
-            anim.addSprite(item.element, topStart, topEnd, 1000);
-            // item.element.setAttribute('style', 'top:' + top + 'px; display: block;');
-            topStart = topEnd;
-            topEnd += item.height;
+            // Animate to new Y-location
+            anim.moveSpriteY(item.element, topStart, topStart + spacer, 200); // 200 milisecons to drop down items.
+            // Next item start point
+            topStart += item.height;
 
             if (i < api.carrouselElement.show) {
               item.element.setAttribute('style', 'display: block;');
             } else {
-              item.element.setAttribute('style', 'display: none;');
+              anim.fadeOutSprite(item.element, 500);
+              // item.element.setAttribute('style', 'display: none;');
             }
-
           }
         };
 
