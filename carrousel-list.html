@@ -17,35 +17,7 @@ An animated rotating list of items
         position: relative;
         height: 120px;  /* TODO: Make this an attribute or ... */
         overflow-y: hidden;
-        border: solid green thin;
       }
-      /* 
-      @keyframes fadeIn {
-        0% {
-          display: block;
-          opacity: 0;
-        }
-        100% {
-          opacity: 1;
-        }
-      }
-      .fade-in {
-        animation: fadeIn 0.5s ease-out;
-      }
-      @keyframes fadeOut {
-        0% {
-          opacity: 1;
-        }
-        100% {
-          opacity: 0;
-          display: none;
-        }
-      }
-      .fade-out {
-        animation: fadeOut 0.5s ease-out;
-        color: greenyellow;
-      }
-      */
     </style>
     <content></content>
   </template>
@@ -159,7 +131,7 @@ An animated rotating list of items
 
           // Check for Sprites to be animated. Otherwise skip to next 'animationFrame' EVENT.
           if (maxSprites > 0) {
-            // Prepare the new animation state
+            // Prepare the new animation state for all Sprites
             for (; i < maxSprites; i += 1) {
               // Short cut to the animated Sprite Object.
               sprite = anim.sprites[i];
@@ -167,50 +139,30 @@ An animated rotating list of items
               sprite.start = sprite.start || timestamp;
               progress = timestamp - sprite.start;  // How much progress time was passed
 
+              // Check if animation ends 
+              if (progress >= sprite.milli) {
+                // Animation finished
+                anim.deleteSprite(sprite.id);
+                maxSprites = anim.sprites.length;
+                i -= 1; // Check same index again, because item removed from Array.
+
+                // Perform callback to close up
+                if (typeof sprite.callback === "function") {
+                  sprite.callback.call(sprite);
+                }
+              }
+
               switch (sprite.action) {
-
-                // Move Sprite element vertically
                 case "MOVE-Y":
-                  if (progress >= sprite.milli) {
-                    // Animation finished
-                    sprite.element.style.top = sprite.yStop + 'px';
-                    anim.deleteSprite(sprite.id);
-                    maxSprites = anim.sprites.length;
-                    i -= 1; // Check same index again, because item removed from Array.
-
-                  } else {
-                    sprite.element.style.top = sprite.yStart + Math.round(progress / sprite.milli * sprite.yDiff) + 'px';
-                  }
+                  sprite.element.style.top = sprite.yStart + Math.round(progress / sprite.milli * sprite.yDiff) + 'px';
                   break;
 
                 case "FADE-IN":
-                  if (progress >= sprite.milli) {
-                    // Animation finished
-                    // sprite.element.style.opacity = "1";
-                    anim.deleteSprite(sprite.id);
-                    maxSprites = anim.sprites.length;
-                    i -= 1; // Check same index again, because item removed from Array.
-
-                    if (typeof sprite.callback === "function") {
-                      sprite.callback.call(sprite);
-                    }
-                  } else {
-                    // console.log((progress / sprite.milli).toString());
-                    sprite.element.style.opacity = (progress / sprite.milli).toString();
-                  }
+                  sprite.element.style.opacity = (progress / sprite.milli).toString();
                   break;
 
                 case "FADE-OUT":
-                  if (progress >= sprite.milli) {
-                    // Animation finished
-                    sprite.element.style.opacity = "0";
-                    anim.deleteSprite(sprite.id);
-                    maxSprites = anim.sprites.length;
-                    i -= 1; // Check same index again, because item removed from Array.
-                  } else {
-                    // console.log(1 - (progress / sprite.milli).toString());
-                    sprite.element.style.opacity = (1 - progress / sprite.milli).toString();
-                  }
+                  sprite.element.style.opacity = (1 - progress / sprite.milli).toString();
                   break;
               }
 
@@ -262,6 +214,7 @@ An animated rotating list of items
           spacer = item.height;    // Starting point of the next carrousel element.
 
           anim.fadeInSprite(item.element, 500, function () {
+            // When animation is done, do this.Sprite
             this.element.style.opacity = "1";
           });
 
@@ -269,16 +222,21 @@ An animated rotating list of items
 
           for (; i < max; i += 1) {
             item = getCarrouselItemBySeq(api.rotationSeq[i]);
-            // Animate to new Y-location
-            anim.moveSpriteY(item.element, topStart, topStart + spacer, 200); // 200 milisecons to drop down items.
+            // Animate to new Y-location, 200 milisecons to drop down items.
+            anim.moveSpriteY(item.element, topStart, topStart + spacer, 200, function () {
+              // When animation is done, do this.Sprite
+              this.element.style.top = this.yStop + 'px';
+            });
             // Next item start point
             topStart += item.height;
 
             if (i < api.carrouselElement.show) {
               item.element.setAttribute('style', 'display: block;');
             } else {
-              anim.fadeOutSprite(item.element, 500);
-              // item.element.setAttribute('style', 'display: none;');
+              anim.fadeOutSprite(item.element, 500, function () {
+                this.element.style.opacity = "0";
+                this.element.style.display = "none";
+              });
             }
           }
         };
