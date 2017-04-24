@@ -1,10 +1,28 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
-`carrousel-list`
-An animated rotating list of items
+`carrousel-list` is a vertically animated rotating list of items.
 
-**Note**: if you're using IMAGES inside this element, provide them with a WIDTH and HEIGHT attribute.
+### Animation
+
+At given 'seconds' interval, all items scroll down. On the first position a new item is faded-in. The last item, on the bottom, is faded out.
+
+### Style
+
+* Default _HEIGHT:100px_
+
+## Usage
+```
+<carrousel-list show="2" seconds="10">
+    <carrousel-list-item>Hi, this is the first item</carrousel-list-item>
+    <carrousel-list-item><p>This is a next one</p></carrousel-list-item>
+    <carrousel-list-item>
+      <img src="my-image.png" width="64" height="64">
+    </carrousel-list-item>
+</carrousel-list>
+```
+
+__Note__: if you're using IMAGES inside this element, provide them with a WIDTH and HEIGHT attribute.
 
 @demo demo/index.html 
 -->
@@ -15,7 +33,7 @@ An animated rotating list of items
       :host {
         display: block;
         position: relative;
-        height: 120px;  /* TODO: Make this an attribute or ... */
+        height: 100px;
         overflow-y: hidden;
       }
     </style>
@@ -28,7 +46,7 @@ An animated rotating list of items
       // Internal API of this element
       _carrousel: (function () {
 
-        /* CONSTRUCTOR: carrousel
+        /* Carrousel constructor Object.
          * Internal carrousel API, not accessible from <carrousel-list>-element.
          */
         var api = {
@@ -41,7 +59,8 @@ An animated rotating list of items
           rotation: null,             // Animation interval, where items are shuffled
         };
 
-        /* Sprite animation management
+        /* Sprite animation management constructor Object.
+         * Keeping track of the animated Sprite Objects.
          */
         var anim = {
           seq: 0,                     // Keep track of unique Sprite ID's
@@ -79,7 +98,7 @@ An animated rotating list of items
         };
 
         /**
-         * Register Sprite to the animation list, moving vertically from 'yStart' to 'yStop'.
+         * Method for registering a Sprite-element to the animation list, moving vertically from 'yStart' to 'yStop'.
          * @param {element} element to be animated
          * @param {Number} yStart position on Y-ax to be animated from
          * @param {Number} yStop position on Y-ax to be animated to, animation ends
@@ -92,18 +111,32 @@ An animated rotating list of items
           return this.sprites[id - 1];
         };
 
+        /**
+         * Method for registering a Sprite-element to the animation list, fading IN from OPACITY:0 to OPACITY:1.
+         * @param {element} element to be animated
+         * @param {Number} milli total animation time in milliseconds, then firing CALLBACK to close
+         * @param {Function} callback function when animation has ended.
+         * @return {Sprite} the created Sprite, containing Sprite.id an unique number.
+         */
         anim.fadeInSprite = function (element, milli, callback) {
           var id = this.sprites.push(this.Sprite(element, 0, 0, milli, "FADE-IN", callback));
           return this.sprites[id - 1];
         };
 
+        /**
+         * Method for registering a Sprite-element to the animation list, fading OUT from OPACITY:1 to OPACITY:0.
+         * @param {element} element to be animated
+         * @param {Number} milli total animation time in milliseconds, then firing CALLBACK to close
+         * @param {Function} callback function when animation has ended.
+         * @return {Sprite} the created Sprite, containing Sprite.id an unique number.
+         */
         anim.fadeOutSprite = function (element, milli, callback) {
           var id = this.sprites.push(this.Sprite(element, 0, 0, milli, "FADE-OUT", callback));
           return this.sprites[id - 1];
         };
 
         /**
-         * Method for deleting Sprite identied bu Sprite.id from the animation list
+         * Method for deleting Sprite identied by Sprite.id from the animation list
          * @param {Number} id of the Sprite Object
          */
         anim.deleteSprite = function (id) {
@@ -139,19 +172,20 @@ An animated rotating list of items
               sprite.start = sprite.start || timestamp;
               progress = timestamp - sprite.start;  // How much progress time was passed
 
-              // Check if animation ends 
+              // Check if animation ended. Passed time (progress) exceeds animation time (milli). 
               if (progress >= sprite.milli) {
                 // Animation finished
                 anim.deleteSprite(sprite.id);
-                maxSprites = anim.sprites.length;
+                maxSprites = anim.sprites.length; // Update FOR ... LOOP
                 i -= 1; // Check same index again, because item removed from Array.
 
-                // Perform callback to close up
+                // Perform callback on Sprite Object to finish close.
                 if (typeof sprite.callback === "function") {
                   sprite.callback.call(sprite);
                 }
               }
 
+              // Sprite is still animated, perform ANIMATION ACTION.
               switch (sprite.action) {
                 case "MOVE-Y":
                   sprite.element.style.top = sprite.yStart + Math.round(progress / sprite.milli * sprite.yDiff) + 'px';
@@ -169,7 +203,7 @@ An animated rotating list of items
             }
           }
 
-          // Repeat animation
+          // Request an new animation frame.
           this.animationFrame = window.requestAnimationFrame(anim.staging);
         };
 
@@ -241,7 +275,6 @@ An animated rotating list of items
           }
         };
 
-
         /**
          * Add a new child <carrousel-list-item> to the animation list
          * @param {Element} element being the special <carrousel-list-item> child element
@@ -286,7 +319,6 @@ An animated rotating list of items
           _rotateCarrousel();
         };
 
-
         /**
          * Register THIS <carrousel-list> element to this _carrousel API.
          * In this way we're hidding internal functions and data as outside methods.
@@ -310,7 +342,7 @@ An animated rotating list of items
       is: 'carrousel-list',
 
       properties: {
-        // Show this number of carrousel items.
+        // Show this number of carrousel items on display.
         show: {
           type: Number,
           value: 3,
@@ -331,7 +363,6 @@ An animated rotating list of items
 
         // Listen for the child 'carrousel-list-item' ATTACHED event.
         this.addEventListener('carrousel-item-add', function (e) { 
-          // console.log("Registered an item", e.detail.h, e.detail.carrousel_element);
           that._carrousel.add(e.detail.carrousel_element, e.detail.h);
         }, false);
       },
