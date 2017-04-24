@@ -1,8 +1,11 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
-`carrousel-list`
-An animated roulating list of items
+`carrousel-list-item` a container element, to be animated as roulating list of items.  
+
+Is a CHILD-element of `carrousel-list`, which handles the animated list of `carrousel-list-item`-elements.
+
+TODO: Do we need this element? It's just a container, can be replaced by a <DIV> ...?
 
 @demo demo/index.html 
 -->
@@ -12,7 +15,7 @@ An animated roulating list of items
     <style>
       :host {
         display: block;
-        position: absolute;
+        position: absolute; /* Relative to the parent-element. */
       }
     </style>
     <content></content>
@@ -24,24 +27,13 @@ An animated roulating list of items
       is: 'carrousel-list-item',
 
       properties: {
-        prop1: {
-          type: String,
-          value: 'carrousel-list-item',
-        },
       },
 
       attached: function () {
-        // console.log("I'am attached, fire event to parent.");
-        // var event = new Event('carrousel-list-item');
-        // this.dispatchEvent(event);
         this.fire('carrousel-item-add', {carrousel_element: this, h:this.offsetHeight});
-        // console.log(this.getBoundingClientRect());
       },
 
       detached: function () {
-        // console.log("I'am detached, fire event to parent.");
-        // var event = new Event('carrousel-list-item');
-        // this.dispatchEvent(event);
         this.fire('carrousel-item-removed', {carrousel_element: this});
       },
 
