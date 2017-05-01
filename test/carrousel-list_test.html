@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>carrousel-list test</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../carrousel-list.html">
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <carrousel-list>
+          <carrousel-list-item id="row1">Row 1</carrousel-list-item>
+          <carrousel-list-item id="row2">Row 2</carrousel-list-item>
+          <carrousel-list-item id="row3">Row 3</carrousel-list-item>
+          <carrousel-list-item id="row4">Row 4</carrousel-list-item>
+          <carrousel-list-item id="row5">Row 5</carrousel-list-item>
+          <carrousel-list-item id="row6">Row 6</carrousel-list-item>
+        </carrousel-list>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('carrousel-list', function() {
+        var element;
+
+        setup(function () {
+          element = fixture("basic");
+          children = element.getElementsByTagName("carrousel-list-item")
+        });
+
+        test('A01: Instantiating the element works', function() {
+          var element = fixture('basic');
+          assert.equal(element.is, 'carrousel-list');
+          assert.equal(children.length, 6);
+        });
+
+        test('B01: Default behavior', function(done) {
+          // Wait for animation to be finished
+          setTimeout(function () {
+            expect(children[0].hidden).to.be.false;
+            expect(children[1].hidden).to.be.false;
+            expect(children[2].hidden).to.be.false;
+            console.log(children[4].style);
+            expect(children[3].hidden).to.be.true;
+            expect(children[4].hidden).to.be.true;
+            expect(children[5].hidden).to.be.true;
+            done();
+          }, 500);
+        });
+
+      });
+    </script>
+  </body>
+</html>
