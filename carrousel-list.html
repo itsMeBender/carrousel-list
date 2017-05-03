@@ -75,8 +75,6 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
         this._constructor.init = function (me) {
           var ip = this;                  // Internal Property set, for THIS ELEMENT
 
-          ip.idFirst = 0;                 // First element of the displayed list
-          ip.idLast = 0;                  // Last element of the displayed list
           ip.list = [];                   // An Array of Objects, keeping management information about <carrousel-list> elements
           ip.carrouselElement = me;       // Properties of the <carrousel-list> element
           ip.rotationSeq = [];            // The list items visible on screen.
@@ -357,8 +355,6 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
               }, this.carrouselElement.seconds * 1000);
               // console.log("SHOW",this.carrouselElement.seconds, this); // this is _constructor.init()
             }
-          } else {
-            this.idLast = this.list.length - 1;   // Unique SEQUENTIAL number TODO: deletions and adding element give problems here.
           }
 
           this.rotateCarrousel();
@@ -387,26 +383,18 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
         // Create ELEMENT SPECIFIC API - this._carrousel.anim, this._carrousel.remove();
         ///////////////////////////////////////////////////////////////////////////////////
 
-        this._carrousel = this._constructor(this);  // Putting all '_constructor' properties and methods, into the Polymer ELEMENT._carrousel
+        this._carrousel = this._constructor(this);  // Putting all '_constructor' properties and methods, into the -none documented- Polymer ELEMENT._carrousel
       },
 
       detached: function () {
 console.log("path B:", this._carrousel.anim);
         this._carrousel.stopFrameAnimation();
-console.log("DETACHED"); // this = <CARROUSEL-LIST> element
       },
 
       is: 'carrousel-list',
 
       properties: {
 
-        // Internal API for this `<carrousel-list>`
-        /*
-        _carrousel: {
-          type: Object,
-          value: {},
-        },
-*/
         // Show this number of carrousel items on display.
         show: {
           type: Number,
