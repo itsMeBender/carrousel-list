@@ -53,91 +53,108 @@
         });
 
         test('B01: Default behavior - initialisation', function(done) {
-          var h = 83; // Cummulative height of the elements
+          var h = 0; // Cummulative height of the elements
+
           // Wait for animation to setup
-          // No CHILD elements visible at start
-
+          // Property SHOW = 3, so first three element are 'display:block'.
           setTimeout(function () {
-            expect(row1.style.display).to.be.equal('none');
-            //expect(row1.style.top).to.be.equal(h + 'px');
-            h += 15;
+            expect(row1.style.display).to.be.equal('block');
+            expect(row1.style.top).to.be.equal(h + 'px');
 
-            expect(row2.style.display).to.be.equal('none');
-            //expect(row2.style.top).to.be.equal(h + 'px');
-            h += 15;
-
-            expect(row3.style.display).to.be.equal('none');
-            //expect(row3.style.top).to.be.equal(h + 'px');
-            h += 15;
-
+            // Cannot inspect 'style.top', because ANIMATION is already in progress.
+            expect(row2.style.display).to.be.equal('block');
+            expect(row3.style.display).to.be.equal('block');
             expect(row4.style.display).to.be.equal('none');
-            //expect(row4.style.top).to.be.equal(h + 'px');
-            h += 15;
-
             expect(row5.style.display).to.be.equal('none');
-            //expect(row5.style.top).to.be.equal(h + 'px');
-            h += 15;
-
             expect(row6.style.display).to.be.equal('none');
-            //expect(row6.style.top).to.be.equal(h + 'px');
 
             done();
-          }, 100);
+          }, 50);
         });
 
-        test('B02: Default behavior - first animation', function(done) {
+        test('B02: First frame animation render', function(done) {
           var h = 0;
+          var LINEHEIGHT = 18;
 
+          function checkFrame (e) {
 
-
-          // Animation TIMER 'seconds' is setup for 2 sec.
-          // This will check the first animation sequence.
-          // No.6 op top, No.1 second, No 3 is not shown.
-          setTimeout(function () {
-console.log(element, row1);
-          document.addEventListener('carrousel-animation-end', function (e) {
-            console.log("PSP");
-console.log(row1.getAttribute("style"), row1);
-console.log(row6.getAttribute("style"), row6);
-            done();
-          });
-
-
-/*
-console.log(row1.getAttribute("style"), row1);
-console.log(row6.getAttribute("style"), row6);
-
-            expect(row6.style.display).to.be.equal('');
-            expect(row6.style.top).to.be.equal(h + 'px');
-            h += 195;
-
-            expect(row1.style.display).to.be.equal('none');
+            expect(row1.style.display).to.be.equal('block');
             expect(row1.style.top).to.be.equal(h + 'px');
-            h += 15;
+            h += LINEHEIGHT;
 
-            expect(row2.style.display).to.be.equal('none');
+            expect(row2.style.display).to.be.equal('block');
             expect(row2.style.top).to.be.equal(h + 'px');
-            h += 15;
+            h += LINEHEIGHT;
 
-            expect(row3.style.display).to.be.equal('none');
+            expect(row3.style.display).to.be.equal('block');
             expect(row3.style.top).to.be.equal(h + 'px');
-            h += 15;
+            h += LINEHEIGHT;
 
             expect(row4.style.display).to.be.equal('none');
             expect(row4.style.top).to.be.equal(h + 'px');
-            h += 15;
+            h += LINEHEIGHT;
 
             expect(row5.style.display).to.be.equal('none');
             expect(row5.style.top).to.be.equal(h + 'px');
+            h += LINEHEIGHT;
 
+            expect(row6.style.display).to.be.equal('none');
+            expect(row6.style.top).to.be.equal(h + 'px');
 
-//            done();
-*/
+            document.removeEventListener('carrousel-animation-end', checkFrame, true);
+            done();
+          }
 
-          }, 100);
+          // Animation TIMER 'seconds' is setup for 2 sec.
+          // This will check the first animation sequence; ROW1, ROW2, ROW3
+          // No.6 op top, No.1 second, No 3 is not shown.
+          document.addEventListener('carrousel-animation-end', checkFrame, true);
 
         });
 
+        test('B03: Second frame animation render', function(done) {
+          var h = 0;
+          var seq = 0;
+          var LINEHEIGHT = 18;
+
+          function checkFrame (e) {
+            seq += 1;
+
+            if (seq === 2) {
+              expect(row6.style.display).to.be.equal('block');
+              expect(row6.style.top).to.be.equal(h + 'px');
+              h += LINEHEIGHT;
+
+              expect(row1.style.display).to.be.equal('block');
+              expect(row1.style.top).to.be.equal(h + 'px');
+              h += LINEHEIGHT;
+
+              expect(row2.style.display).to.be.equal('block');
+              expect(row2.style.top).to.be.equal(h + 'px');
+              h += LINEHEIGHT;
+
+              expect(row3.style.display).to.be.equal('none');
+              expect(row3.style.top).to.be.equal(h + 'px');
+              h += LINEHEIGHT;
+
+              expect(row4.style.display).to.be.equal('none');
+              expect(row4.style.top).to.be.equal(h + 'px');
+              h += LINEHEIGHT;
+
+              expect(row5.style.display).to.be.equal('none');
+              expect(row5.style.top).to.be.equal(h + 'px');
+
+              document.removeEventListener('carrousel-animation-end', checkFrame, true);
+              done();
+            }
+          }
+
+          // Animation TIMER 'seconds' is setup for 2 sec.
+          // This will check the SECOND animation sequence (4 seconds)
+          // On top ROW6, second:ROW1, third:ROW2
+          document.addEventListener('carrousel-animation-end', checkFrame, true);
+
+        });
       });
     </script>
   </body>
