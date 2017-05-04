@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>carrousel-list test</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../carrousel-list.html">
+    <link rel="import" href="../carrousel-list-item.html">
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <carrousel-list seconds="3" show="2">
+          <carrousel-list-item id="row1">Row 1</carrousel-list-item>
+          <carrousel-list-item id="row2">Row 2</carrousel-list-item>
+          <carrousel-list-item id="row3">Row 3</carrousel-list-item>
+          <carrousel-list-item id="row4">Row 4</carrousel-list-item>
+        </carrousel-list>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('carrousel-list', function() {
+        var element;
+        var row1, row2, row3, row4;
+
+        setup(function () {
+          element = fixture("basic");
+          row1 = element.firstChild.nextElementSibling;
+          row2 = row1.nextElementSibling;
+          row3 = row2.nextElementSibling;
+          row4 = row3.nextElementSibling;
+        });
+
+        test('B01: Default behavior - initialisation', function(done) {
+          var h = 0; // Cummulative height of the elements
+
+          // Wait for animation to setup
+          // Property SHOW = 3, so first three element are 'display:block'.
+          setTimeout(function () {
+            expect(row1.style.display).to.be.equal('block');
+            expect(row1.style.top).to.be.equal(h + 'px');
+
+            // Cannot inspect 'style.top', because ANIMATION is already in progress.
+            expect(row2.style.display).to.be.equal('block');
+            expect(row3.style.display).to.be.equal('none');
+            expect(row4.style.display).to.be.equal('none');
+
+            done();
+          }, 50);
+        });
+
+
+
+        test('C01: Animation interval', function(done) {
+          var timer;
+          var seq = 0;
+
+          // Currently changing seconds and lines to show, can not be changed using JS.
+          // Because animation and displaying is already in progress.
+          expect(element.getAttribute('seconds')).to.be.equal('3');
+
+          function checkFrame (e) {
+            seq += 1;
+            if (seq === 1) {
+              // First animation set up done
+              timer = new Date().getTime();
+            } else if (seq > 2) {
+              // Testing the THIRD animation sequence
+              // 1: Started at 0 sec (ended at 0.5 sec, scrolling and fading cost 0.5sec)
+              // 2: Started at 2 sec (ended at 3.5 sec)
+              // 3: Started at 4 sec (ended at 6.5 sec)
+              // Difference will be 4 sec.
+              expect(Math.round((new Date().getTime() - timer)/1000)).to.be.equal(6);
+              document.removeEventListener('carrousel-animation-end', checkFrame, true);
+              done();
+            }
+          }
+
+          document.addEventListener('carrousel-animation-end', checkFrame, true);
+
+        });
+
+      });
+    </script>
+  </body>
+</html>
