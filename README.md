@@ -19,9 +19,9 @@
 <carrousel-list-item>This is a list of 6 elements (rows)</carrousel-list-item>
 <carrousel-list-item>Only three are displayed</carrousel-list-item>
 <carrousel-list-item>The list scrolls down</carrousel-list-item>
-<carrousel-list-item><img src="bender.png" alt="bender" width="64" height="64"></carrousel-list-item>
+<carrousel-list-item><img src="demo/bender.png" alt="bender" width="64" height="64"></carrousel-list-item>
 <carrousel-list-item>A new row appears on top</carrousel-list-item>
-<carrousel-list-item>The last last fades away</carrousel-list-item>
+<carrousel-list-item>The last of the list fades away</carrousel-list-item>
 </carrousel-list>
 ```
 
