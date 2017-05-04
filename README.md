@@ -31,11 +31,12 @@ An animated rotating vertical list of items. It's part of my bigger project 'mag
 Just to show some movement to mimic some activity on screen.  
 
 If you have a list of 'm' items to show, but you have only room for 'n' items. 
-Then this element based on Polymer ^1.0.0 will handle that for you.  
+Then this element will handle that for you.  
 Carrousel items are nicely animated every 's' seconds, to show you a new item from the list.
 
 # Specifications
 
 * Animate a vertical list of elements by rotating the content in a loop.
+* Allow full control of the content and lay-out of the list-elements.
 * Control the number of visible elements.
 * Control the interval of element refreshment.
