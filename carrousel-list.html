@@ -208,7 +208,7 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
                   }
                   if (!maxSprites) {
                     // No more sprites to animate, fire EVENT
-                    sprite.element.fire('carrousel-animation-end', {sprite: sprite.element});
+                    sprite.element.fire('carrousel-animation-end', {});
                   }
                 } else {
                   // Sprite is still animated, perform ANIMATION ACTION.
@@ -338,7 +338,7 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
           // These items will be animated
           if (this.list.length > this.carrouselElement.show) {
             element.style.display = "none";
-
+            
             // Start animation ROTATION sequence. 
             // Because more carrousel items are avaiable then maximal allowed (attribute show)
             if (!this.rotationInterval) {
