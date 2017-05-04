@@ -208,7 +208,6 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
                   }
                   if (!maxSprites) {
                     // No more sprites to animate, fire EVENT
-  console.log(maxSprites, "FIRE");
                     sprite.element.fire('carrousel-animation-end', {sprite: sprite.element});
                   }
                 } else {
@@ -272,7 +271,6 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
          * https://www.w3.org/TR/2011/WD-page-visibility-20110602/
          */
         this._constructor.prototype.rotateCarrousel = function () {
-          console.log("rotateCarrousel", this);
           var item;     // a Carrousel list item
           var i = 1;    // Index FOR
           var max = this.list.length;  // Render MAXimum items, depending on availabillity (length) and property 'SHOW'.
@@ -281,7 +279,7 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
 
           // Draw FIRST element at top:0px, fade in.
           item = this.getCarrouselItemBySeq(this.rotationSeq[0]);
-          item.element.setAttribute('style', 'top:' + topStart + 'px;');
+          item.element.setAttribute('style', 'top:' + topStart + 'px; display: block;');
           shiftY = item.height;    // Starting point of the next carrousel element.
 
           this.anim.fadeInSprite(item.element, 500, function () {  // 500 milliseconds to change opacity
