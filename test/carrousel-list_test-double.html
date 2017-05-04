@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
+
+    <title>carrousel-list test</title>
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+
+    <link rel="import" href="../carrousel-list.html">
+    <link rel="import" href="../carrousel-list-item.html">
+  </head>
+  <body>
+    <test-fixture id="basic">
+      <template>
+        <carrousel-list seconds="1" show="1" id="CA">
+          <carrousel-list-item id="row1A">Row 1A</carrousel-list-item>
+          <carrousel-list-item id="row2A">Row 2A</carrousel-list-item>
+          <carrousel-list-item id="row3A">Row 3A</carrousel-list-item>
+          <carrousel-list-item id="row4A">Row 4A</carrousel-list-item>
+        </carrousel-list>
+        <carrousel-list seconds="3" show="5" id="CB">
+          <carrousel-list-item id="row1B">Row 1B</carrousel-list-item>
+          <carrousel-list-item id="row2B">Row 2B</carrousel-list-item>
+          <carrousel-list-item id="row3B">Row 3B</carrousel-list-item>
+          <carrousel-list-item id="row4B">Row 4B</carrousel-list-item>
+          <carrousel-list-item id="row5B">Row 5B</carrousel-list-item>
+          <carrousel-list-item id="row6B">Row 6B</carrousel-list-item>
+        </carrousel-list>
+      </template>
+    </test-fixture>
+
+    <script>
+      suite('carrousel-list', function() {
+        var element;
+        var row1A, row2A, row3A, row4A;
+        var row1B, row2B, row3B, row4B, row5B, row6B;
+
+        setup(function () {
+          element = fixture("basic");   // An array of <carrousel-list> elements
+
+          row1A = element[0].firstChild.nextElementSibling;
+          row2A = row1A.nextElementSibling;
+          row3A = row2A.nextElementSibling;
+          row4A = row3A.nextElementSibling;
+
+          row1B = element[1].firstChild.nextElementSibling;
+          row2B = row1B.nextElementSibling;
+          row3B = row2B.nextElementSibling;
+          row4B = row3B.nextElementSibling;
+          row5B = row4B.nextElementSibling;
+          row6B = row5B.nextElementSibling;
+        });
+
+        test('A01: Instantiating the element A is working side by side with element B', function() {
+          assert.equal(element[0].is, 'carrousel-list');
+          assert.equal(element[0].nodeName, 'CARROUSEL-LIST');
+
+          assert.equal(row1A.nodeName, 'CARROUSEL-LIST-ITEM');
+          assert.equal(row2A.nodeName, 'CARROUSEL-LIST-ITEM');
+          assert.equal(row3A.nodeName, 'CARROUSEL-LIST-ITEM');
+          assert.equal(row4A.nodeName, 'CARROUSEL-LIST-ITEM');
+        });
+
+        test('B01: Instantiating the element B is working side by side with element A', function() {
+          assert.equal(element[1].is, 'carrousel-list');
+          assert.equal(element[1].nodeName, 'CARROUSEL-LIST');
+
+          assert.equal(row1B.nodeName, 'CARROUSEL-LIST-ITEM');
+          assert.equal(row2B.nodeName, 'CARROUSEL-LIST-ITEM');
+          assert.equal(row3B.nodeName, 'CARROUSEL-LIST-ITEM');
+          assert.equal(row4B.nodeName, 'CARROUSEL-LIST-ITEM');
+          assert.equal(row5B.nodeName, 'CARROUSEL-LIST-ITEM');
+          assert.equal(row6B.nodeName, 'CARROUSEL-LIST-ITEM');
+        });
+
+        test('A02: Default behavior A - Show onlu ONE row', function(done) {
+          var h = 0; // Cummulative height of the elements
+
+          // Wait for animation to setup
+          setTimeout(function () {
+
+            // <carrousel-list seconds="1" show="1" id="CA">
+            expect(row1A.style.display).to.be.equal('block');
+            expect(row1A.style.top).to.be.equal(h + 'px');
+
+            // Cannot inspect 'style.top', because ANIMATION is already in progress.
+            expect(row2A.style.display).to.be.equal('none');
+            expect(row3A.style.display).to.be.equal('none');
+            expect(row4A.style.display).to.be.equal('none');
+
+            done();
+          }, 50);
+        });
+
+        test('B02: Default behavior B - Show maximum 5 out of 6', function(done) {
+          var h = 0; // Cummulative height of the elements
+
+          // Wait for animation to setup
+          setTimeout(function () {
+
+            // <carrousel-list seconds="3" show="5" id="CB">
+            expect(row1B.style.display).to.be.equal('block');
+            expect(row1B.style.top).to.be.equal(h + 'px');
+
+            // Cannot inspect 'style.top', because ANIMATION is already in progress.
+            expect(row2B.style.display).to.be.equal('block');
+            expect(row3B.style.display).to.be.equal('block');
+            expect(row4B.style.display).to.be.equal('block');
+            expect(row5B.style.display).to.be.equal('block');
+            expect(row6B.style.display).to.be.equal('none');
+
+            done();
+          }, 50);
+        });
+
+        test('A03: Animation interval A 1 second', function(done) {
+          var timer;
+          var seq = 0;
+
+          // Currently changing seconds and lines to show, can not be changed using JS.
+          // Because animation and displaying is already in progress.
+          expect(element[0].getAttribute('seconds')).to.be.equal('1');
+
+          function checkFrame (e) {
+
+            // Because we have TWO <carrousel-list> element, generating also
+            // 'carrousel-animation-end' EVENTS,.
+            // Filter out only those EVENTS belonging to TESTS subject 'A'.
+            if (e.target.id.indexOf("A") > 0) {
+              seq += 1;
+              if (seq === 1) {
+                // First animation set up done
+                timer = new Date().getTime();
+              } else if (seq > 2) {
+                // Testing the THIRD animation sequence
+                // 1: Started at 0 sec (ended at 0.5 sec, scrolling and fading cost 0.5sec)
+                // 2: Started at 1 sec (ended at 1.5 sec)
+                // 3: Started at 2 sec (ended at 2.5 sec)
+                // Difference will be 2 sec.
+                expect(Math.round((new Date().getTime() - timer)/1000)).to.be.equal(2);
+                document.removeEventListener('carrousel-animation-end', checkFrame, true);
+                done();
+              }
+            }
+          }
+
+          document.addEventListener('carrousel-animation-end', checkFrame, true);
+
+        });
+
+        test('B03: Animation interval B 3 seconds', function(done) {
+          var timer;
+          var seq = 0;
+
+          // Currently changing seconds and lines to show, can not be changed using JS.
+          // Because animation and displaying is already in progress.
+          expect(element[1].getAttribute('seconds')).to.be.equal('3');
+
+          function checkFrame (e) {
+
+            // Because we have TWO <carrousel-list> element, generating also
+            // 'carrousel-animation-end' EVENTS,.
+            // Filter out only those EVENTS belonging to TESTS subject 'B'.
+            if (e.target.id.indexOf("B") > 0) {
+            // console.log(e.target.id.indexOf("B"), e.target.id);
+              seq += 1;
+              if (seq === 1) {
+                // First animation set up done
+                timer = new Date().getTime();
+              } else if (seq > 2) {
+                // Testing the SECOND animation sequence
+                // 1: Started at 0 sec (ended at 0.5 sec, scrolling and fading cost 0.5sec)
+                // 2: Started at 3 sec (ended at 3.5 sec)
+                // 3: Started at 6 sec (ended at 6.5 sec)
+                // Difference will be 6 sec.
+                expect(Math.round((new Date().getTime() - timer)/1000)).to.be.equal(6);
+                document.removeEventListener('carrousel-animation-end', checkFrame, true);
+                done();
+              }
+            }
+          }
+
+          document.addEventListener('carrousel-animation-end', checkFrame, true);
+
+        });
+
+      });
+    </script>
+  </body>
+</html>

@@ -73,8 +73,8 @@
             } else if (seq > 2) {
               // Testing the THIRD animation sequence
               // 1: Started at 0 sec (ended at 0.5 sec, scrolling and fading cost 0.5sec)
-              // 2: Started at 2 sec (ended at 3.5 sec)
-              // 3: Started at 4 sec (ended at 6.5 sec)
+              // 2: Started at 3 sec (ended at 3.5 sec)
+              // 3: Started at 6 sec (ended at 6.5 sec)
               // Difference will be 4 sec.
               expect(Math.round((new Date().getTime() - timer)/1000)).to.be.equal(6);
               document.removeEventListener('carrousel-animation-end', checkFrame, true);
