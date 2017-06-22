@@ -1,5 +1,3 @@
-<link rel="import" href="../polymer/polymer.html">
-
 <!--
 `carrousel-list` is a vertical animated rotating list of `carrousel-list-item` elements.
 
@@ -27,6 +25,8 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
 @demo demo/index.html 
 -->
 
+<link rel="import" href="../polymer/polymer.html">
+
 <dom-module id="carrousel-list">
   <template>
     <style>
@@ -45,20 +45,22 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
 
       /**
        * Carrousel API constructor object.
+       * @param {Object} me initialize this object.
+       * @return {Object} initialized Object
        */
-      _constructor: function (me) {
+      _constructor: function(me) {
        // It's unique properties and methods are set in the Polymer.CREATE event.
        // And applied to the element __property__ `_carrousel`.
-        return new this._constructor.init(me);
+        return new this._constructor.Init(me);
       },
-  
+
       listeners: {
         'carrousel-item-add': '_handleCarrouselItemAdd',
       },
 
       /**
        * Event handler for element `<carrousel-list-item>`. Which was added, as a child, to `<carrousel-list>`
-       * @param (Event) e.detail with element height information.
+       * @param {Event} e with element height information.
        */
       _handleCarrouselItemAdd: function(e) {
         this._carrousel.add(e.detail.carrousel_element, e.detail.h);
@@ -68,25 +70,24 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
        * Called when the element has been created, but before property values are set and local DOM is initialized.
        * Use for one-time set-up before property values are set.
        */
-      created: function () {
-
+      created: function() {
         // The real _constructor (path) function constructor INITIALISATION.
         // Based on jQuery coding pattern (JS Ninja).
-        this._constructor.init = function (me) {
-          var ip = this;                  // Internal Property set, for THIS ELEMENT
+        this._constructor.Init = function(me) {
+          var ip = this; // Internal Property set, for THIS ELEMENT
 
-          ip.list = [];                   // An Array of Objects, keeping management information about <carrousel-list> elements
-          ip.carrouselElement = me;       // Properties of the <carrousel-list> element
-          ip.rotationSeq = [];            // The list items visible on screen.
-          ip.seq = -1;                    // Unused sequence number
-          ip.rotationInterval = null;     // Animation rotation interval, where items are shuffled
+          ip.list = []; // An Array of Objects, keeping management information about <carrousel-list> elements
+          ip.carrouselElement = me; // Properties of the <carrousel-list> element
+          ip.rotationSeq = []; // The list items visible on screen.
+          ip.seq = -1; // Unused sequence number
+          ip.rotationInterval = null; // Animation rotation interval, where items are shuffled
 
           // Sprite animation management constructor Object.
           // Keeping track of the animated Sprite Objects.
           ip.anim = {
-            seq: 0,                       // Keep track of unique Sprite ID's
-            sprites: [],                  // A list ANIMATED Sprites (which are just HTML-elements)
-            animationFrame: null,         // Keeping track of the current ANIMATION FRAME Object.
+            seq: 0, // Keep track of unique Sprite ID's
+            sprites: [], // A list ANIMATED Sprites (which are just HTML-elements)
+            animationFrame: null, // Keeping track of the current ANIMATION FRAME Object.
           };
 
           /**
@@ -100,21 +101,21 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
            * @param {Function} callback function when animation has ended.
            * @return {Sprite} Object, just created.
            */
-          ip.anim.Sprite = function (element, yStart, yStop, milli, action, callback) {
+          ip.anim.sprite = function(element, yStart, yStop, milli, action, callback) {
             var sprite = {
-              action: action,           // Movement, Opacity ...
-              callback: callback,       // Function called when animation was ended
-              element: element,         // The HTML-element animated
-              id: 0,                    // Unique ID of this Sprite
-              milli: milli || 500,      // MilliSeconds to animate between yStart and yStop
-              start: null,              // Animation timer
-              yStart: yStart,           // Start Y cooridinate
-              yStop: yStop,             // Stop Y cooridinate, when reached callback is called
-              yDiff: yStop - yStart,    // Y distance to animate
+              action: action, // Movement, Opacity ...
+              callback: callback, // Function called when animation was ended
+              element: element, // The HTML-element animated
+              id: 0, // Unique ID of this Sprite
+              milli: milli || 500, // MilliSeconds to animate between yStart and yStop
+              start: null, // Animation timer
+              yStart: yStart, // Start Y cooridinate
+              yStop: yStop, // Stop Y cooridinate, when reached callback is called
+              yDiff: yStop - yStart, // Y distance to animate
             };
 
-            this.seq += 1;              // Create unique sequence number, starting at 1
-            sprite.id = this.seq;       // Identify new Sprite by this number
+            this.seq += 1; // Create unique sequence number, starting at 1
+            sprite.id = this.seq; // Identify new Sprite by this number
 
             return sprite;
           };
@@ -128,8 +129,8 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
            * @param {Function} callback function when animation has ended.
            * @return {Sprite} the created Sprite, containing Sprite.id an unique number.
            */
-          ip.anim.moveSpriteY = function (element, yStart, yStop, milli, callback) {
-            var id = this.sprites.push(this.Sprite(element, yStart, yStop, milli, "MOVE-Y", callback));
+          ip.anim.moveSpriteY = function(element, yStart, yStop, milli, callback) {
+            var id = this.sprites.push(this.sprite(element, yStart, yStop, milli, 'MOVE-Y', callback));
             return this.sprites[id - 1];
           };
 
@@ -140,8 +141,8 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
            * @param {Function} callback function when animation has ended.
            * @return {Sprite} the created Sprite, containing Sprite.id an unique number.
            */
-          ip.anim.fadeInSprite = function (element, milli, callback) {
-            var id = this.sprites.push(this.Sprite(element, 0, 0, milli, "FADE-IN", callback));
+          ip.anim.fadeInSprite = function(element, milli, callback) {
+            var id = this.sprites.push(this.sprite(element, 0, 0, milli, 'FADE-IN', callback));
             return this.sprites[id - 1];
           };
 
@@ -152,8 +153,8 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
            * @param {Function} callback function when animation has ended.
            * @return {Sprite} the created Sprite, containing Sprite.id an unique number.
            */
-          ip.anim.fadeOutSprite = function (element, milli, callback) {
-            var id = this.sprites.push(this.Sprite(element, 0, 0, milli, "FADE-OUT", callback));
+          ip.anim.fadeOutSprite = function(element, milli, callback) {
+            var id = this.sprites.push(this.sprite(element, 0, 0, milli, 'FADE-OUT', callback));
             return this.sprites[id - 1];
           };
 
@@ -161,14 +162,14 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
            * Method for deleting Sprite identied by Sprite.id from the animation list
            * @param {Number} id of the Sprite Object
            */
-          ip.anim.deleteSprite = function (id) {
+          ip.anim.deleteSprite = function(id) {
             var i = 0;
             var maxSprites = this.sprites.length;
 
             for (; i < maxSprites; i += 1) {
               if (this.sprites[i].id === id) {
                 this.sprites.splice(i, 1);
-                i = maxSprites;   // Break loop
+                i = maxSprites; // Break loop
               }
             }
           };
@@ -178,12 +179,12 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
            * https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
            * @param {Number} timestamp of the animation frame
            */
-          ip.anim.staging = function (timestamp) {
-            // console.log("ANIM.staging");
-            var i = 0;          // Sprite animation index, 0 .. #
+          ip.anim.staging = function(timestamp) {
+            // console.log('ANIM.staging');
+            var i = 0; // Sprite animation index, 0 .. #
             var maxSprites = ip.anim.sprites.length;
-            var progress;       // Animation progress based on passed time.
-            var sprite;         // Sprite animation Object
+            var progress; // Animation progress based on passed time.
+            var sprite; // Sprite animation Object
 
             // Check for Sprites to be animated. Otherwise skip to next 'animationFrame' EVENT.
             if (maxSprites > 0) {
@@ -193,9 +194,9 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
                 sprite = ip.anim.sprites[i];
                 // Start Sprite animation, or continue with existing one.
                 sprite.start = sprite.start || timestamp;
-                progress = timestamp - sprite.start;  // How much progress time was passed
+                progress = timestamp - sprite.start; // How much progress time was passed
 
-                // Check if animation ended. Passed time (progress) exceeds animation time (milli). 
+                // Check if animation ended. Passed time (progress) exceeds animation time (milli).
                 if (progress >= sprite.milli) {
                   // Animation TIME finished
                   ip.anim.deleteSprite(sprite.id);
@@ -203,7 +204,7 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
                   i -= 1; // Check same index again, because item removed from Array.
 
                   // Perform callback on Sprite Object to finish close.
-                  if (typeof sprite.callback === "function") {
+                  if (typeof sprite.callback === 'function') {
                     sprite.callback.call(sprite);
                   }
                   if (!maxSprites) {
@@ -213,15 +214,15 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
                 } else {
                   // Sprite is still animated, perform ANIMATION ACTION.
                   switch (sprite.action) {
-                    case "MOVE-Y":
+                    case 'MOVE-Y':
                       sprite.element.style.top = sprite.yStart + Math.round(progress / sprite.milli * sprite.yDiff) + 'px';
                       break;
 
-                    case "FADE-IN":
+                    case 'FADE-IN':
                       sprite.element.style.opacity = (progress / sprite.milli).toString();
                       break;
 
-                    case "FADE-OUT":
+                    case 'FADE-OUT':
                       sprite.element.style.opacity = (1 - progress / sprite.milli).toString();
                       break;
                   }
@@ -236,22 +237,21 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
           // Activate ANIMATION with an empty animation list.
           // https://developer.mozilla.org/en-US/docs/Web/API/window/requestAnimationFrame
           ip.anim.animationFrame = window.requestAnimationFrame(ip.anim.staging);
-
         };
 
         // Point the Function constructor prototype to API prototype, just to minimize typing.
-        this._constructor.init.prototype = this._constructor.prototype;
+        this._constructor.Init.prototype = this._constructor.prototype;
 
-        ///////////////////////////////////////////////////////////////////////////////////
+        // /////////////////////////////////////////////////////////////////////////////////
         // INTERNAL METHODS
-        ///////////////////////////////////////////////////////////////////////////////////
+        // /////////////////////////////////////////////////////////////////////////////////
 
         /**
          * Find an <carrousel-list-item> based on 'seq' (sequence) number.
          * @param {Number} seq number of the element
          * @return {element} or -1 when not found.
          */
-        this._constructor.prototype.getCarrouselItemBySeq = function (seq) {
+        this._constructor.prototype.getCarrouselItemBySeq = function(seq) {
           var max = this.list.length;
           var i = 0;
           for (; i < max; i += 1) {
@@ -259,8 +259,8 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
               return this.list[i];
             }
           }
-          return -1;    // Meaning NOT FOUND
-        }
+          return -1; // Meaning NOT FOUND
+        };
 
         /**
          * Rotate the list of <carrousel-list-item> elements, in the sequence specified by api.rotationSeq[].
@@ -270,21 +270,21 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
          *
          * https://www.w3.org/TR/2011/WD-page-visibility-20110602/
          */
-        this._constructor.prototype.rotateCarrousel = function () {
-          var item;     // a Carrousel list item
-          var i = 1;    // Index FOR
-          var max = this.list.length;  // Render MAXimum items, depending on availabillity (length) and property 'SHOW'.
-          var topStart = 0;   // Top Y start coordinate in pixels.
-          var shiftY = 0;     // Animation Y-shift in pixels.
+        this._constructor.prototype.rotateCarrousel = function() {
+          var item; // a Carrousel list item
+          var i = 1; // Index FOR
+          var max = this.list.length; // Render MAXimum items, depending on availabillity (length) and property 'SHOW'.
+          var topStart = 0; // Top Y start coordinate in pixels.
+          var shiftY = 0; // Animation Y-shift in pixels.
 
           // Draw FIRST element at top:0px, fade in.
           item = this.getCarrouselItemBySeq(this.rotationSeq[0]);
           item.element.setAttribute('style', 'top:' + topStart + 'px; display: block;');
-          shiftY = item.height;    // Starting point of the next carrousel element.
+          shiftY = item.height; // Starting point of the next carrousel element.
 
-          this.anim.fadeInSprite(item.element, 500, function () {  // 500 milliseconds to change opacity
-            // When animation is done, do this.Sprite
-            this.element.style.opacity = "1";
+          this.anim.fadeInSprite(item.element, 500, function() { // 500 milliseconds to change opacity
+            // When animation is done, do this.sprite
+            this.element.style.opacity = '1';
           });
 
           // Position a number of 'this.carrouselElement.show' items, in the correct vertical location.
@@ -292,8 +292,8 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
           for (; i < max; i += 1) {
             item = this.getCarrouselItemBySeq(this.rotationSeq[i]);
             // Animate to new Y-location, 200 miliseconds to drop down items.
-            this.anim.moveSpriteY(item.element, topStart, topStart + shiftY, 200, function () {
-              // When animation is done, do this.Sprite
+            this.anim.moveSpriteY(item.element, topStart, topStart + shiftY, 200, function() {
+              // When animation is done, do this.sprite
               this.element.style.top = this.yStop + 'px';
             });
             // Next item start point
@@ -302,48 +302,48 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
             if (i < this.carrouselElement.show) {
               item.element.setAttribute('style', 'display: block;');
             } else {
-              this.anim.fadeOutSprite(item.element, 500, function () {
-                this.element.style.opacity = "0";
-                this.element.style.display = "none";
+              this.anim.fadeOutSprite(item.element, 500, function() {
+                this.element.style.opacity = '0';
+                this.element.style.display = 'none';
               });
             }
           }
         };
 
-        ///////////////////////////////////////////////////////////////////////////////////
+        // /////////////////////////////////////////////////////////////////////////////////
         // PROTOTYPE METHODS, EXTERNAL
-        ///////////////////////////////////////////////////////////////////////////////////
+        // /////////////////////////////////////////////////////////////////////////////////
 
         /**
          * Add a new child <carrousel-list-item> to the animation list
          * @param {Element} element being the special <carrousel-list-item> child element
          * @param {Number} height of the special <carrousel-list-item> child element
          */
-        this._constructor.prototype.add = function (element, height) {
-          // console.log("ADD <CARROUSEL-LIST-ITEM> element", this.list.length);
+        this._constructor.prototype.add = function(element, height) {
+          // console.log('ADD <CARROUSEL-LIST-ITEM> element', this.list.length);
           var that = this;
 
-          this.seq += 1;            // Create a new unique, unused sequence number.
+          this.seq += 1; // Create a new unique, unused sequence number.
 
           // Register this element to be part of the animated, roulating list.
           this.list.push({
-            element: element,       // <carrousel-list-item>
-            height: height,         // Height of the element
-            seq: this.seq,          // Unique SEQUENTIAL number
+            element: element, // <carrousel-list-item>
+            height: height, // Height of the element
+            seq: this.seq, // Unique SEQUENTIAL number
           });
 
-          this.rotationSeq.push(this.seq);  // Add to rotation list
+          this.rotationSeq.push(this.seq); // Add to rotation list
 
           // Hide elements when the 'carrousel-list.show' count has been reached
           // These items will be animated
           if (this.list.length > this.carrouselElement.show) {
-            element.style.display = "none";
-            
-            // Start animation ROTATION sequence. 
+            element.style.display = 'none';
+    
+            // Start animation ROTATION sequence.
             // Because more carrousel items are avaiable then maximal allowed (attribute show)
             if (!this.rotationInterval) {
               // Rotate the list every INTERVAL, LAST becomes FIRST in the 'rotationSeq'-Array
-              this.rotationInterval = setInterval(function () {
+              this.rotationInterval = setInterval(function() {
                 // Move last item in Array as first item in Array
                 that.rotationSeq.unshift(that.rotationSeq[that.rotationSeq.length - 1]);
                 // Remove the last item in Array. A copy was placed on position 0 in Array
@@ -351,7 +351,7 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
                 // New rotation sequence order created, activate rotation ANIMATION
                 that.rotateCarrousel();
               }, this.carrouselElement.seconds * 1000);
-              // console.log("SHOW",this.carrouselElement.seconds, this); // this is _constructor.init()
+              // console.log('SHOW',this.carrouselElement.seconds, this); // this is _constructor.Init()
             }
           }
 
@@ -359,9 +359,9 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
         };
 
         /**
-         * Stop FRAME ANIMATIONand interval timer, due to DETACHEMENT of the main element 
+         * Stop FRAME ANIMATIONand interval timer, due to DETACHEMENT of the main element
          */
-        this._constructor.prototype.stopFrameAnimation = function () {
+        this._constructor.prototype.stopFrameAnimation = function() {
           clearInterval(this.rotationInterval); // stop the interval
           if (this.anim.animationFrame) {
             window.cancelAnimationFrame(this.anim.animationFrame);
@@ -370,21 +370,23 @@ __Note__: if you're using IMAGES inside this element, provide them with a WIDTH 
 
         /**
          * TODO: remove an carrousel-list-item element, from the data.
+         * @param {Object} element to be deleted
          */
-        this._constructor.prototype.remove = function (element) {
-          console.log("REMOVE()", this.anim);
-          console.log("TODO: Removing the child element from the animation sequence.");
-          console.log("TODO: Stop timer when not enough items are available.");
+        this._constructor.prototype.remove = function(element) {
+          console.log('REMOVE()', this.anim);
+          console.log('TODO: Removing the child element from the animation sequence.');
+          console.log('TODO: Stop timer when not enough items are available.');
         };
 
-        ///////////////////////////////////////////////////////////////////////////////////
+        // /////////////////////////////////////////////////////////////////////////////////
         // Create ELEMENT SPECIFIC API - this._carrousel.anim, this._carrousel.remove();
-        ///////////////////////////////////////////////////////////////////////////////////
+        // /////////////////////////////////////////////////////////////////////////////////
 
-        this._carrousel = this._constructor(this);  // Putting all '_constructor' properties and methods, into the -none documented- Polymer ELEMENT._carrousel
+        // Putting all '_constructor' properties and methods, into the -none documented- Polymer ELEMENT._carrousel
+        this._carrousel = this._constructor(this);
       },
 
-      detached: function () {
+      detached: function() {
         this._carrousel.stopFrameAnimation();
       },
 

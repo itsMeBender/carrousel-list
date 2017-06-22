@@ -1,7 +1,7 @@
 {
   "name": "carrousel-list",
   "description": "An animated roulating list of items",
-  "main": "carrousel-list.html",
+  "main": "index.html",
   "version": "1.0.2",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0"

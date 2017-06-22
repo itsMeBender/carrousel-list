@@ -1,0 +1,22 @@
+{
+  "name": "carrousel-list",
+  "version": "1.0.2",
+  "description": "An animated roulating list of items",
+  "main": "index.html",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "eslint": "^4.0.0"
+  },
+  "devDependencies": {
+    "eslint": "^4.0.0",
+    "eslint-config-google": "^0.8.0",
+    "eslint-plugin-html": "^3.0.0"
+  },
+  "scripts": {
+    "test": "test/index.html"
+  },
+  "author": "Pieter",
+  "license": "MIT"
+}
