@@ -27,12 +27,20 @@
     </test-fixture>
 
     <script>
+      /* global
+          expect, setup
+      */
       suite('carrousel-list', function() {
         var element;
-        var row1, row2, row3, row4, row5, row6;
+        var row1;
+        var row2;
+        var row3;
+        var row4;
+        var row5;
+        var row6;
 
-        setup(function () {
-          element = fixture("basic");
+        setup(function() {
+          element = fixture('basic');
           row1 = element.firstChild.nextElementSibling;
           row2 = row1.nextElementSibling;
           row3 = row2.nextElementSibling;
@@ -57,7 +65,7 @@
 
           // Wait for animation to setup
           // Property SHOW = 3, so first three element are 'display:block'.
-          setTimeout(function () {
+          setTimeout(function() {
             expect(row1.style.display).to.be.equal('block');
             expect(row1.style.top).to.be.equal(h + 'px');
 
@@ -76,10 +84,12 @@
           var h = 0;
           var LINEHEIGHT = 18;
 
-          // Animation TIMER 'seconds' is setup for 2 sec.
-          // This will check the first animation sequence; ROW1, ROW2, ROW3
-          function checkFrame (e) {
-
+          /**
+           * Animation TIMER 'seconds' is setup for 2 sec.
+           * This will check the first animation sequence; ROW1, ROW2, ROW3
+           * @param {Event} e
+           */
+          function checkFrame(e) {
             expect(row1.style.display).to.be.equal('block');
             expect(row1.style.top).to.be.equal(h + 'px');
             h += LINEHEIGHT;
@@ -108,7 +118,6 @@
           }
 
           document.addEventListener('carrousel-animation-end', checkFrame, true);
-
         });
 
         test('B03: Second frame animation render', function(done) {
@@ -116,10 +125,13 @@
           var seq = 0;
           var LINEHEIGHT = 18;
 
-          // Animation TIMER 'seconds' is setup for 2 sec.
-          // This will check the SECOND animation sequence (4 seconds)
-          // On top ROW6, second:ROW1, third:ROW2
-          function checkFrame (e) {
+          /**
+           * Animation TIMER 'seconds' is setup for 2 sec.
+           * This will check the SECOND animation sequence(4 seconds)
+           * On top ROW6, second:ROW1, third:ROW2
+           * @param {Event} e
+           */
+          function checkFrame(e) {
             seq += 1;
 
             if (seq === 2) {
@@ -152,10 +164,7 @@
           }
 
           document.addEventListener('carrousel-animation-end', checkFrame, true);
-
         });
-
-
 
         test('C01: Animation interval', function(done) {
           var timer;
@@ -165,16 +174,22 @@
           // Because animation and displaying is already in progress.
           expect(element.getAttribute('seconds')).to.be.equal('2');
 
-          function checkFrame (e) {
+          /**
+           * Animation TIMER 'seconds' is setup for 2 sec.
+           * This will check the SECOND animation sequence(4 seconds)
+           * On top ROW6, second:ROW1, third:ROW2
+           * @param {Event} e
+           */
+          function checkFrame(e) {
             seq += 1;
             if (seq === 1) {
               // First animation set up done
               timer = new Date().getTime();
             } else if (seq > 2) {
               // Testing the THIRD animation sequence
-              // 1: Started at 0 sec (ended at 0.5 sec, scrolling and fading cost 0.5sec)
-              // 2: Started at 2 sec (ended at 2.5 sec)
-              // 3: Started at 4 sec (ended at 4.5 sec)
+              // 1: Started at 0 sec(ended at 0.5 sec, scrolling and fading cost 0.5sec)
+              // 2: Started at 2 sec(ended at 2.5 sec)
+              // 3: Started at 4 sec(ended at 4.5 sec)
               // Difference will be 4 sec.
               expect(Math.round((new Date().getTime() - timer)/1000)).to.be.equal(4);
               document.removeEventListener('carrousel-animation-end', checkFrame, true);
@@ -183,9 +198,7 @@
           }
 
           document.addEventListener('carrousel-animation-end', checkFrame, true);
-
         });
-
       });
     </script>
   </body>

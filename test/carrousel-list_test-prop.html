@@ -25,12 +25,18 @@
     </test-fixture>
 
     <script>
+      /* global
+          expect, setup
+      */
       suite('carrousel-list', function() {
         var element;
-        var row1, row2, row3, row4;
+        var row1;
+        var row2;
+        var row3;
+        var row4;
 
-        setup(function () {
-          element = fixture("basic");
+        setup(function() {
+          element = fixture('basic');
           row1 = element.firstChild.nextElementSibling;
           row2 = row1.nextElementSibling;
           row3 = row2.nextElementSibling;
@@ -42,7 +48,7 @@
 
           // Wait for animation to setup
           // Property SHOW = 3, so first three element are 'display:block'.
-          setTimeout(function () {
+          setTimeout(function() {
             expect(row1.style.display).to.be.equal('block');
             expect(row1.style.top).to.be.equal(h + 'px');
 
@@ -55,8 +61,6 @@
           }, 50);
         });
 
-
-
         test('C01: Animation interval', function(done) {
           var timer;
           var seq = 0;
@@ -65,16 +69,20 @@
           // Because animation and displaying is already in progress.
           expect(element.getAttribute('seconds')).to.be.equal('3');
 
-          function checkFrame (e) {
+          /**
+           * Filter out only those EVENTS belonging to TESTS subject 'B'.
+           * @param {Event} e
+           */
+          function checkFrame(e) {
             seq += 1;
             if (seq === 1) {
               // First animation set up done
               timer = new Date().getTime();
             } else if (seq > 2) {
               // Testing the THIRD animation sequence
-              // 1: Started at 0 sec (ended at 0.5 sec, scrolling and fading cost 0.5sec)
-              // 2: Started at 3 sec (ended at 3.5 sec)
-              // 3: Started at 6 sec (ended at 6.5 sec)
+              // 1: Started at 0 sec(ended at 0.5 sec, scrolling and fading cost 0.5sec)
+              // 2: Started at 3 sec(ended at 3.5 sec)
+              // 3: Started at 6 sec(ended at 6.5 sec)
               // Difference will be 4 sec.
               expect(Math.round((new Date().getTime() - timer)/1000)).to.be.equal(6);
               document.removeEventListener('carrousel-animation-end', checkFrame, true);
@@ -83,9 +91,7 @@
           }
 
           document.addEventListener('carrousel-animation-end', checkFrame, true);
-
         });
-
       });
     </script>
   </body>

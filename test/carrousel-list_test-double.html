@@ -33,13 +33,24 @@
     </test-fixture>
 
     <script>
+      /* global
+          expect, setup
+       */
       suite('carrousel-list', function() {
         var element;
-        var row1A, row2A, row3A, row4A;
-        var row1B, row2B, row3B, row4B, row5B, row6B;
+        var row1A;
+        var row2A;
+        var row3A;
+        var row4A;
+        var row1B;
+        var row2B;
+        var row3B;
+        var row4B;
+        var row5B;
+        var row6B;
 
-        setup(function () {
-          element = fixture("basic");   // An array of <carrousel-list> elements
+        setup(function() {
+          element = fixture('basic'); // An array of <carrousel-list> elements
 
           row1A = element[0].firstChild.nextElementSibling;
           row2A = row1A.nextElementSibling;
@@ -80,8 +91,7 @@
           var h = 0; // Cummulative height of the elements
 
           // Wait for animation to setup
-          setTimeout(function () {
-
+          setTimeout(function() {
             // <carrousel-list seconds="1" show="1" id="CA">
             expect(row1A.style.display).to.be.equal('block');
             expect(row1A.style.top).to.be.equal(h + 'px');
@@ -99,8 +109,7 @@
           var h = 0; // Cummulative height of the elements
 
           // Wait for animation to setup
-          setTimeout(function () {
-
+          setTimeout(function() {
             // <carrousel-list seconds="3" show="5" id="CB">
             expect(row1B.style.display).to.be.equal('block');
             expect(row1B.style.top).to.be.equal(h + 'px');
@@ -124,12 +133,14 @@
           // Because animation and displaying is already in progress.
           expect(element[0].getAttribute('seconds')).to.be.equal('1');
 
-          function checkFrame (e) {
-
-            // Because we have TWO <carrousel-list> element, generating also
-            // 'carrousel-animation-end' EVENTS,.
-            // Filter out only those EVENTS belonging to TESTS subject 'A'.
-            if (e.target.id.indexOf("A") > 0) {
+          /**
+           * Because we have TWO <carrousel-list> element, generating also
+           * 'carrousel-animation-end' EVENTS.
+           * Filter out only those EVENTS belonging to TESTS subject 'A'.
+           * @param{Event} e
+           */
+          function checkFrame(e) {
+            if (e.target.id.indexOf('A') > 0) {
               seq += 1;
               if (seq === 1) {
                 // First animation set up done
@@ -148,7 +159,6 @@
           }
 
           document.addEventListener('carrousel-animation-end', checkFrame, true);
-
         });
 
         test('B03: Animation interval B 3 seconds', function(done) {
@@ -159,13 +169,15 @@
           // Because animation and displaying is already in progress.
           expect(element[1].getAttribute('seconds')).to.be.equal('3');
 
-          function checkFrame (e) {
-
-            // Because we have TWO <carrousel-list> element, generating also
-            // 'carrousel-animation-end' EVENTS,.
-            // Filter out only those EVENTS belonging to TESTS subject 'B'.
-            if (e.target.id.indexOf("B") > 0) {
-            // console.log(e.target.id.indexOf("B"), e.target.id);
+          /**
+           * Because we have TWO <carrousel-list> element, generating also
+           * 'carrousel-animation-end' EVENTS,.
+           * Filter out only those EVENTS belonging to TESTS subject 'B'.
+           * @param {Event} e
+           */
+          function checkFrame(e) {
+            if (e.target.id.indexOf('B') > 0) {
+            // console.log(e.target.id.indexOf('B'), e.target.id);
               seq += 1;
               if (seq === 1) {
                 // First animation set up done
@@ -184,9 +196,7 @@
           }
 
           document.addEventListener('carrousel-animation-end', checkFrame, true);
-
         });
-
       });
     </script>
   </body>
